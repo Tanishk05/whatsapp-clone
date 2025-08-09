@@ -15,10 +15,14 @@ interface MongooseCache {
 }
 
 // FIX: Use the new interface to type the global variable
-let cached: MongooseCache = (global as any).mongoose;
+let cached: MongooseCache = (global as unknown as { mongoose: MongooseCache })
+  .mongoose;
 
 if (!cached) {
-  cached = (global as any).mongoose = { conn: null, promise: null };
+  cached = (global as unknown as { mongoose: MongooseCache }).mongoose = {
+    conn: null,
+    promise: null,
+  };
 }
 
 async function dbConnect() {

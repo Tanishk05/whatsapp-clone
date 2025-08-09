@@ -68,7 +68,10 @@ export async function POST(req: Request) {
     console.error("Webhook processing error:", errorMessage);
 
     // FIX: Added type check before accessing 'code' property
-    if (error instanceof Error && (error as any).code === 11000) {
+    if (
+      error instanceof Error &&
+      (error as unknown as { code?: number }).code === 11000
+    ) {
       return NextResponse.json({
         success: true,
         message: "Duplicate message ignored.",
