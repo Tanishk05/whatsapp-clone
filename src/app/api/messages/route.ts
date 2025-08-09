@@ -19,8 +19,7 @@ export async function POST(req: Request) {
     const newMessageData = {
       id: `local-${uuidv4()}`,
       from: "me", // Messages sent from the UI are from 'me'
-      // *** FIX: Explicitly set the 'to' field for the recipient ***
-      to: body.conversationId,
+      to: body.conversationId, // Set the 'to' field for the recipient
       timestamp: new Date(),
       text: body.text,
       type: "text",
@@ -34,10 +33,13 @@ export async function POST(req: Request) {
       { success: true, message: savedMessage },
       { status: 201 }
     );
-  } catch (error: any) {
-    console.error("POST /api/messages error:", error);
+  } catch (error: unknown) {
+    // Replaced 'any' with 'unknown' for type safety
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
+    console.error("POST /api/messages error:", errorMessage);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: errorMessage },
       { status: 500 }
     );
   }

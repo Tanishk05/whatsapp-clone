@@ -1,21 +1,21 @@
-import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongoDb";
-import Message from "@/models/Message";
+import { NextResponse as NextResponseMessagesId } from "next/server";
+import dbConnectMessagesId from "@/lib/mongoDb";
+import MessageMessagesId from "@/models/Message";
 
 export async function GET(
   req: Request,
   { params }: { params: { conversationId: string } }
 ) {
   const { conversationId } = params;
-  await dbConnect();
+  await dbConnectMessagesId();
 
   try {
-    const messages = await Message.find({ conversationId }).sort({
+    const messages = await MessageMessagesId.find({ conversationId }).sort({
       timestamp: 1,
     });
-    const contact = await Message.findOne({ conversationId });
+    const contact = await MessageMessagesId.findOne({ conversationId });
 
-    return NextResponse.json({
+    return NextResponseMessagesId.json({
       success: true,
       messages,
       contactInfo: {
@@ -23,9 +23,12 @@ export async function GET(
         number: contact?.conversationId,
       },
     });
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
+  } catch (error) {
+    // FIX: Replaced 'any' with 'unknown' and added type checking
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
+    return NextResponseMessagesId.json(
+      { success: false, error: errorMessage },
       { status: 500 }
     );
   }

@@ -1,3 +1,4 @@
+/* src/app/api/webhook/route.ts */
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoDb";
 import Message from "@/models/Message";
@@ -60,17 +61,21 @@ export async function POST(req: Request) {
       { success: false, message: "Payload is not a message or status update" },
       { status: 400 }
     );
-  } catch (error: any) {
-    console.error("Webhook processing error:", error);
-    // Check for duplicate key error specifically
-    if (error.code === 11000) {
+  } catch (error: unknown) {
+    // FIX: Replaced 'any' with 'unknown' for type safety
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
+    console.error("Webhook processing error:", errorMessage);
+
+    // FIX: Added type check before accessing 'code' property
+    if (error instanceof Error && (error as any).code === 11000) {
       return NextResponse.json({
         success: true,
         message: "Duplicate message ignored.",
       });
     }
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: errorMessage },
       { status: 500 }
     );
   }

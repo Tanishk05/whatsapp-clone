@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Mongoose } from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI as string;
 
@@ -8,7 +8,14 @@ if (!MONGODB_URI) {
   );
 }
 
-let cached = (global as any).mongoose;
+// FIX: Define a more specific type for the global mongoose cache
+interface MongooseCache {
+  conn: Mongoose | null;
+  promise: Promise<Mongoose> | null;
+}
+
+// FIX: Use the new interface to type the global variable
+let cached: MongooseCache = (global as any).mongoose;
 
 if (!cached) {
   cached = (global as any).mongoose = { conn: null, promise: null };

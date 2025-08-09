@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import styles from "./Home.module.css"; // Create a CSS module for styling
+import styles from "./Home.module.css";
 
 interface Conversation {
   _id: string;
@@ -11,7 +11,8 @@ interface Conversation {
   timestamp: string;
 }
 
-export default function page() {
+// FIX: Renamed function from 'page' to 'Page'
+export default function Page() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
 
   useEffect(() => {
