@@ -1,22 +1,19 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import dbConnect from "@/lib/mongoDb";
 import Message from "@/models/Message";
 
-// The second argument is an object containing params.
-// This syntax directly destructures `params` from that object, which is the
-// standard and most compatible way to type dynamic route handlers.
-export async function GET(
-  req: Request,
-  { params }: { params: { conversationId: string } }
-) {
-  // Destructure the conversationId directly from params
-  const { conversationId } = params;
+export async function GET(req: NextRequest, context: unknown) {
+  // Assert params type locally instead of in the signature
+  const { conversationId } = (context as { params: { conversationId: string } })
+    .params;
+
   await dbConnect();
 
   try {
     const messages = await Message.find({ conversationId }).sort({
       timestamp: 1,
     });
+
     const contact = await Message.findOne({ conversationId });
 
     return NextResponse.json({
@@ -27,11 +24,12 @@ export async function GET(
         number: contact?.conversationId,
       },
     });
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "An unknown error occurred";
+  } catch (error) {
     return NextResponse.json(
-      { success: false, error: errorMessage },
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     );
   }
